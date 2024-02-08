@@ -15,10 +15,13 @@ public:
 
     void setRandom(bounds b, [[maybe_unused]] const image *im)
     {
+        // bounds tmp;
         angle = Ran.randMinMax(-3.14159, 3.14159);
         size = {Ran.randMinMax(3.0f, b.max.x), Ran.randMinMax(3.0f, b.max.y)};
         center = {Ran.randMinMax(size.x * 0.5f + b.min.x, b.max.x - size.x * 0.5f), Ran.randMinMax(size.y * 0.5f + b.min.y, b.max.y - size.y * 0.5f)};
-        // c = im->getColorAv<7>(center);
+        //    tmp = getBounds();
+        // c = im->getClampedPixel(center);
+        //  c = im->getColorAv<7>(center);
         c = Ran.getRandColor();
     }
 

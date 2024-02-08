@@ -26,19 +26,19 @@ public:
     template <class T>
     base_point<T> operator()(const base_point<T> &v, const bounds b = bounds(0.9, 1.1, 0.9, 1.1)) const
     {
-        return {
+        return randBool() ? base_point<T>{
             (T)((float)v.x * randMinMax(b.min.x, b.max.x)),
-            (T)((float)v.y * randMinMax(b.min.y, b.max.y))};
+            (T)((float)v.y * randMinMax(b.min.y, b.max.y))} : v;
     }
     color operator()(const color &c, const point2f l = point2f(0.8, 1.2)) const
     {
-        return {
+        return randBool() ? color{
             (uint8_t)((float)c.R * randMinMax(l)),
             (uint8_t)((float)c.G * randMinMax(l)),
-            (uint8_t)((float)c.B * randMinMax(l))};
+            (uint8_t)((float)c.B * randMinMax(l))} : c;
     }
     float operator()(const float &f) const
     {
-        return f * getRand();
+        return randBool() ? f * getRand(): f;
     }
 };
