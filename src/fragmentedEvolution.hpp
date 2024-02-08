@@ -5,7 +5,7 @@
 class fragmentedEvolution
 {
 public:
-    int32_t fragmentationSize = 64;
+    int32_t fragmentationSize = 96;
 
     int32_t threadCount = std::thread::hardware_concurrency();
 
