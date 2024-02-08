@@ -6,12 +6,12 @@
 #include <thread>
 #include "randomShape.hpp"
 
-class fullEvolution
+class evolution
 {
 public:
-    int32_t startingCapacity = 2000,
-            parentCount = 8,
-            childrenCount = 100;
+    int32_t startingCapacity = 5000,
+            parentCount = 5,
+            childrenCount = 5;
 
     int32_t threadCount = std::thread::hardware_concurrency();
 
@@ -25,7 +25,7 @@ private:
 
     float lastPerf;
 
-    static void runThread(fullEvolution *e, int32_t start, int32_t end)
+    static void runThread(evolution *e, int32_t start, int32_t end)
     {
         image current;
         for (auto i = e->data.begin() + start; i != e->data.begin() + end; ++i)
@@ -45,7 +45,7 @@ private:
     }
 
 public:
-    fullEvolution() : data(startingCapacity) {}
+    evolution() : data(startingCapacity) {}
 
     bool addBestToImage()
     {
@@ -169,10 +169,12 @@ public:
     float getBest() const { return data[0].val; }
 
     image &getOutImage() { return last; }
+    image &getGTImage() { return gt; }
     void setGTImage(const image &im)
     {
         gt = im;
         last = current = image(im.getWidth(), im.getHeight());
+        boundingbox = im.getBounds();
     }
 
     void setBound(bounds b) { boundingbox = b; }

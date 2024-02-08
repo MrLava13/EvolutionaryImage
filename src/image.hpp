@@ -147,7 +147,7 @@ public:
      * @param p
      * @return
      */
-    const color getClampedPixel(const point2 &p) const { return getPixel(p.clampX(0, width).x, p.clampY(0, height - 1).y); }
+    const color getClampedPixel(const point2 &p) const { return getPixel(p.clampX(0, width - 1).x, p.clampY(0, height - 1).y); }
 
     /**
      * @brief Get the color average around a specified point
@@ -344,6 +344,50 @@ public:
                     break;
                 error += dx;
                 p1.y += sy;
+            }
+        }
+    }
+
+    image cut(bounds area) const
+    {
+        assert(area.isIn(imageBounds.min));
+        assert(area.isIn(imageBounds.max));
+
+        image output(area.max.x - area.min.x, area.max.y - area.min.y);
+        colorInt *pix = output.pixels;
+
+        for (int32_t y = area.min.y; y < area.max.y; y++)
+        {
+            for (int32_t x = area.min.x; x < area.max.x; x++)
+            {
+                *(pix++) = pixels[getPixelPos(x,y)];
+            }
+        }
+
+        return output;
+    }
+
+    void paste(point2 point, const image &im)
+    {
+        assert(point.x >= 0);
+        assert(point.y >= 0);
+        assert(point.x + im.width < width);
+        assert(point.y + im.height < height);
+
+        colorInt *pix = im.pixels;
+
+        /*
+        colorInt *self = pixels + point.x + (point.y * width);
+
+        for(int32_t i = 0; i < im.total; i++) {
+            self[(i % im.width) + (i / im.width * height)] = *(pix++);
+        } */
+
+        for (int32_t y = point.y; y < point.y + im.height; y++)
+        {
+            for (int32_t x = point.x; x < point.x + im.width; x++)
+            {
+                setPixel(x, y, (pix++)->c);
             }
         }
     }
