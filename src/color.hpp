@@ -2,9 +2,11 @@
 #include <cstdint>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 struct color
 {
     uint8_t R = 0, G = 0, B = 0, A = 0;
+    static constexpr std::streamsize d_size = sizeof(uint8_t);
     color() {}
     color(uint8_t R, uint8_t G, uint8_t B, uint8_t A = 255)
         : R(R), G(G), B(B), A(A) {}
@@ -30,6 +32,21 @@ struct color
             a.G + (b.G - a.G) * t,
             a.B + (b.B - a.B) * t,
             a.A + (b.A - a.A) * t);
+    }
+
+    void write(std::ofstream &out) const
+    {
+        out.write((char *)&R, d_size);
+        out.write((char *)&G, d_size);
+        out.write((char *)&B, d_size);
+        out.write((char *)&A, d_size);
+    }
+    void read(std::ifstream &in)
+    {
+        in.read((char *)&R, d_size);
+        in.read((char *)&G, d_size);
+        in.read((char *)&B, d_size);
+        in.read((char *)&A, d_size);
     }
 
     bool operator==(const color &c) const { return R == c.R && G == c.G && B == c.B && A == c.A; }

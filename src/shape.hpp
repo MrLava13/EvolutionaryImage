@@ -3,6 +3,12 @@
 #include "image.hpp"
 #include "random.hpp"
 
+enum class shapeType : char {
+    triangle,
+    rectangle,
+    circle
+};
+
 class shape
 {
 protected:
@@ -22,4 +28,8 @@ public:
 
     virtual void scale(point2f s) = 0;
 
+    virtual void write(std::ofstream &out) const = 0;
+    virtual void read(std::ifstream &in) = 0;
+
+    virtual shapeType getShapeType() const = 0;
 };

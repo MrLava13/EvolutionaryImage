@@ -8,6 +8,8 @@ struct base_point
 {
     T x, y;
 
+    static constexpr std::streamsize d_size = sizeof(T);
+
     base_point() : x(0), y(0) {}
     base_point(const T x, const T y) : x(x), y(y) {}
     base_point(const base_point<T> &p) : x(p.x), y(p.y) {}
@@ -140,13 +142,24 @@ struct base_point
         return *this;
     }
 
-    template<class F>
+    template <class F>
     base_point<T> &operator=(const base_point<F> &p)
     {
         x = (T)p.x;
         y = (T)p.y;
 
         return *this;
+    }
+
+    void write(std::ofstream &out) const
+    {
+        out.write((char *)&x, d_size);
+        out.write((char *)&y, d_size);
+    }
+    void read(std::ifstream &in)
+    {
+        in.read((char *)&x, d_size);
+        in.read((char *)&y, d_size);
     }
 
     // template <class F>

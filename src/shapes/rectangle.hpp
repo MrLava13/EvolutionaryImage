@@ -49,6 +49,23 @@ public:
             p1.max(p2.max(p3.max(p4)))};
     }
 
+    void write(std::ofstream &out) const
+    {
+        out.write((char *)&angle, sizeof(angle));
+        center.write(out);
+        size.write(out);
+        c.write(out);
+    }
+    void read(std::ifstream &in)
+    {
+        in.read((char *)&angle, sizeof(angle));
+        center.read(in);
+        size.read(in);
+        c.read(in);
+    }
+
+    shapeType getShapeType() const { return shapeType::rectangle; }
+
     shape *genFromSelf() const { return new rectangle(Ran(angle), Ran(center), Ran(size), Ran(c)); }
 
     shape *clone() const { return new rectangle(angle, center, size, c); }

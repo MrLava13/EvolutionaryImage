@@ -55,6 +55,12 @@ public:
         }
     }
 
+    void write(std::ofstream &out) const {}
+    void read(std::ifstream &in) {}
+
+    shapeType getShapeType() const { return shapeType::circle; }
+
+
     bounds getBounds() const { return bounds(center.x - radius, center.x + radius, center.y - radius, center.y + radius); }
 
     shape *genFromSelf() const { return new circle(Ran(radius), Ran(center), Ran(c)); }

@@ -4,12 +4,12 @@
 class triangle : public shape
 {
 private:
-    point2f p1, p2, p3;
+    point2 p1, p2, p3;
     color c;
 
 public:
     triangle() {}
-    triangle(point2f p1, point2f p2, point2f p3, color c)
+    triangle(point2 p1, point2 p2, point2 p3, color c)
         : p1(p1), p2(p2), p3(p3), c(c) {}
     ~triangle() {}
     void setRandom(bounds bound, const image *im)
@@ -19,9 +19,9 @@ public:
             p1 = {Ran.randMinMax(bound.min.x, bound.max.x), Ran.randMinMax(bound.min.y, bound.max.y)};
             p2 = {Ran.randMinMax(bound.min.x, bound.max.x), Ran.randMinMax(bound.min.y, bound.max.y)};
             p3 = {Ran.randMinMax(bound.min.x, bound.max.x), Ran.randMinMax(bound.min.y, bound.max.y)};
-            //c = im->getColorAv<3>({(int32_t)((p1.x + p2.x + p3.x) / 3), (int32_t)((p1.y + p2.y + p3.y) / 3)});
-            //c = im->getClampedPixel({(int32_t)((p1.x + p2.x + p3.x) / 3), (int32_t)((p1.y + p2.y + p3.y) / 3)});
-            // if (c.A == 0)
+            // c = im->getColorAv<3>({(int32_t)((p1.x + p2.x + p3.x) / 3), (int32_t)((p1.y + p2.y + p3.y) / 3)});
+            // c = im->getClampedPixel({(int32_t)((p1.x + p2.x + p3.x) / 3), (int32_t)((p1.y + p2.y + p3.y) / 3)});
+            //  if (c.A == 0)
             c = Ran.getRandColor();
         } while (im->getBounds().isNotIn(p1) && im->getBounds().isNotIn(p2) && im->getBounds().isNotIn(p3)); // Verify at least one of the vertacies are in the image
     }
@@ -55,6 +55,22 @@ public:
         p2 *= s;
         p3 *= s;
     }
+
+    void write(std::ofstream &out) const {
+        p1.write(out);
+        p2.write(out);
+        p3.write(out);
+        c.write(out);
+    }
+    void read(std::ifstream &in) {
+        p1.read(in);
+        p2.read(in);
+        p3.read(in);
+        c.read(in);
+    }
+
+    shapeType getShapeType() const { return shapeType::triangle; }
+
 
     friend std::ostream &operator<<(std::ostream &os, const triangle &p);
 };
