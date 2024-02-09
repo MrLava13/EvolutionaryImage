@@ -153,8 +153,8 @@ struct base_point
 
     void write(std::ofstream &out) const
     {
-        out.write((char *)&x, d_size);
-        out.write((char *)&y, d_size);
+        out.write((const char *)&x, d_size);
+        out.write((const char *)&y, d_size);
     }
     void read(std::ifstream &in)
     {

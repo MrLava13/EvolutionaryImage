@@ -51,7 +51,7 @@ public:
 
     void write(std::ofstream &out) const
     {
-        out.write((char *)&angle, sizeof(angle));
+        out.write((const char *)&angle, sizeof(angle));
         center.write(out);
         size.write(out);
         c.write(out);

@@ -36,10 +36,10 @@ struct color
 
     void write(std::ofstream &out) const
     {
-        out.write((char *)&r, d_size);
-        out.write((char *)&g, d_size);
-        out.write((char *)&b, d_size);
-        out.write((char *)&a, d_size);
+        out.write((const char *)&r, d_size);
+        out.write((const char *)&g, d_size);
+        out.write((const char *)&b, d_size);
+        out.write((const char *)&a, d_size);
     }
     void read(std::ifstream &in)
     {
