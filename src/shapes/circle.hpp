@@ -11,8 +11,8 @@ private:
 
 public:
     circle() {}
-    circle(int32_t radius, point2 center, color c)
-        : radius(radius), center(center), c(c) {}
+    circle(int32_t radius_, point2 center_, color c_)
+        : radius(radius_), center(center_), c(c_) {}
 
     void setRandom(bounds b, [[maybe_unused]] const image *im)
     {

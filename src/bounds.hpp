@@ -13,8 +13,8 @@ struct bounds
         assert(minX < maxX);
         assert(minY < maxY);
     }
-    bounds(const point2f &min, const point2f &max)
-        : min(min), max(max) {}
+    bounds(const point2f &min_, const point2f &max_)
+        : min(min_), max(max_) {}
     bounds(const bounds &b)
         : min(b.min), max(b.max) {}
 

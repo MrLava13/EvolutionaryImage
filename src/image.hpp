@@ -56,8 +56,8 @@ private:
 
 public:
     image() {}
-    image(int32_t width, int32_t height)
-        : width(width), height(height), total(width * height), imageBounds(0, width - 1, 0, height - 1), pixels(new colorInt[total]) {}
+    image(int32_t width_, int32_t height_)
+        : width(width_), height(height_), total(width_ * height_), imageBounds(0, width_ - 1, 0, height_ - 1), pixels(new colorInt[total]) {}
     image(const image &i)
         : width(i.width), height(i.height), total(i.total), imageBounds(i.imageBounds), pixels(new colorInt[total])
     {
@@ -163,7 +163,7 @@ public:
             return getClampedPixel(p);
         }
         int32_t maxX = (p.x + size < width ? p.x + size : width), maxY = (p.y + size < height ? p.y + size : height);
-        int64_t R = 0, G = 0, B = 0, d = maxX * maxY;
+        int64_t r = 0, g = 0, b = 0, d = maxX * maxY;
 
         if (d == 0)
         {
@@ -175,12 +175,12 @@ public:
             for (int32_t y = p.y; y < maxY; y++)
             {
                 color t = getPixel(x, y);
-                R += t.R;
-                G += t.G;
-                B += t.B;
+                r += t.r;
+                g += t.g;
+                b += t.b;
             }
         }
-        return color((int8_t)(R / d), (int8_t)(G / d), (int8_t)(B / d));
+        return color((int8_t)(r / d), (int8_t)(g / d), (int8_t)(b / d));
     }
 
     cachedRows getCachedH(const image &im) const

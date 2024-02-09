@@ -11,7 +11,7 @@ struct base_point
     static constexpr std::streamsize d_size = sizeof(T);
 
     base_point() : x(0), y(0) {}
-    base_point(const T x, const T y) : x(x), y(y) {}
+    base_point(const T X, const T Y) : x(X), y(Y) {}
     base_point(const base_point<T> &p) : x(p.x), y(p.y) {}
     base_point(base_point<T> &&p) noexcept : x(std::move(p.x)), y(std::move(p.y)) {}
     template <class F>

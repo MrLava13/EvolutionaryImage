@@ -33,9 +33,9 @@ public:
     color operator()(const color &c, const point2f l = point2f(0.8, 1.2)) const
     {
         return randBool() ? color{
-            (uint8_t)((float)c.R * randMinMax(l)),
-            (uint8_t)((float)c.G * randMinMax(l)),
-            (uint8_t)((float)c.B * randMinMax(l))} : c;
+            (uint8_t)((float)c.r * randMinMax(l)),
+            (uint8_t)((float)c.g * randMinMax(l)),
+            (uint8_t)((float)c.b * randMinMax(l))} : c;
     }
     float operator()(const float &f) const
     {

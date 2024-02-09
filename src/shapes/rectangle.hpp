@@ -9,8 +9,8 @@ private:
     color c;
 
 public:
-    rectangle(float angle, point2f center, point2f size, color c)
-        : angle(angle), center(center), size(size), c(c) {}
+    rectangle(float angle_, point2f center_, point2f size_, color c_)
+        : angle(angle_), center(center_), size(size_), c(c_) {}
     rectangle() {}
 
     void setRandom(bounds b, [[maybe_unused]] const image *im)
