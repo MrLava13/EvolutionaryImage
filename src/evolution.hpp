@@ -49,11 +49,9 @@ public:
 
     bool addBestToImage()
     {
-        current = last;
-        data[0].s->addShape(&current);
-        // current.drawBounds(data[0].s->getBounds(), {0, 255, 0}); //ESP
-        if (lastPerf > gt.compareImages(current))
-        {
+        if(lastPerf > data[0].val){
+            current = last;
+            data[0].s->addShape(&current);
             last = current;
             return true;
         }
