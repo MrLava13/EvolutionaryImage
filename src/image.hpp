@@ -15,7 +15,7 @@ public:
     typedef std::vector<float> cachedRows;
 
 private:
-    int32_t width, height, total;
+    int32_t width = 0, height = 0, total = 0;
 
     bounds imageBounds;
 
@@ -337,13 +337,6 @@ public:
         {
             *p = col;
         }
-        /*
-        int32_t start = getPixelPos(x0 > 0 ? x0 : 0, y),
-                end = getPixelPos((x1 < width ? x1 : width), y);
-        for (int32_t i = start; i < end; i++)
-        {
-            pixels[i].c = c;
-        } //*/
     }
 
     /**

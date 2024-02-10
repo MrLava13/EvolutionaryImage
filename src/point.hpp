@@ -13,9 +13,19 @@ struct base_point
     base_point() : x(0), y(0) {}
     base_point(const T X, const T Y) : x(X), y(Y) {}
     base_point(const base_point<T> &p) : x(p.x), y(p.y) {}
-    base_point(base_point<T> &&p) noexcept : x(std::move(p.x)), y(std::move(p.y)) {}
     template <class F>
     base_point(const base_point<F> &p) : x((T)p.x), y((T)p.y) {}
+    base_point(base_point<T> &&p) noexcept
+    {
+        std::swap(x, p.x);
+        std::swap(y, p.y);
+    }
+    base_point<T> &operator=(base_point<T> &&p) noexcept
+    {
+        std::swap(x, p.x);
+        std::swap(y, p.y);
+        return *this;
+    } 
 
     /**
      * @brief Clamps the X value between the given values

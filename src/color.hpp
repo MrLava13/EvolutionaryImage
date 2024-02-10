@@ -12,6 +12,22 @@ struct color
         : r(r_), g(g_), b(b_), a(a_) {}
     color(const color &c)
         : r(c.r), g(c.g), b(c.b), a(c.a) {}
+    
+    color(color &&c) noexcept
+    {
+        std::swap(r, c.r);
+        std::swap(g, c.g);
+        std::swap(b, c.b);
+        std::swap(a, c.a);
+    }
+    color &operator=(color &&c) noexcept
+    {
+        std::swap(r, c.r);
+        std::swap(g, c.g);
+        std::swap(b, c.b);
+        std::swap(a, c.a);
+        return *this;
+    } 
 
     inline float findColorDifference(const color &two) const
     {
@@ -74,9 +90,14 @@ union colorInt
     colorInt() : c() {}
     colorInt(const color &co) : c(co) {}
     colorInt(const colorInt &cc) : i(cc.i) {}
-    // colorInt(const colorInt &&cc) = default;
     colorInt(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
         : c(r, g, b, a) {}
+    colorInt(colorInt &&cc) noexcept { std::swap(i, cc.i); }
+    colorInt &operator=(colorInt &&cc) noexcept
+    {
+        std::swap(i, cc.i);
+        return *this;
+    }
 
     colorInt &operator=(const color &col)
     {

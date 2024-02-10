@@ -47,6 +47,7 @@ private:
     void fill() { std::fill_n(shapes, maxSize, nullptr); }
 
 public:
+    pool() : pool(0) {}
     pool(int32_t s) : maxSize(s), shapes(new poolVal *[s])
     {
         assert(s > 0);
@@ -135,6 +136,14 @@ public:
     {
         assert(size < maxSize);
         (shapes[size++] = new poolVal)->s = shape;
+    }
+
+    int32_t countElements() const
+    {
+        int32_t output = 0;
+        for (; output < maxSize && shapes[output] != nullptr; output++)
+            ;
+        return output;
     }
 
     int32_t getSize() const { return size; }

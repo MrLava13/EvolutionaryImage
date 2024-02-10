@@ -49,7 +49,8 @@ public:
 
     bool addBestToImage()
     {
-        if(lastPerf > data[0].val){
+        if (lastPerf > data[0].val)
+        {
             current = last;
             data[0].s->addShape(&current);
             last = current;
@@ -123,7 +124,7 @@ public:
 
     void resize()
     {
-        //data.resize(100);
+        // data.resize(100);
         data.resize(parentCount * (childrenCount + 1)); // Add one to keep room for the parents themselves
     }
 
@@ -131,37 +132,13 @@ public:
     {
         data.sliceAndRefill(parentCount);
 
-        ///*
         for (int p = 0; p < parentCount; p++)
         {
             for (int c = 0; c < childrenCount; c++)
             {
                 data.appendShape(data[p].s->genFromSelf());
             }
-        } //*/
-
-        /*
-        int counter = data.getSize() / childrenCount;
-        auto end = data.begin() + counter;
-        for (auto it = data.begin(); it != end; ++it)
-        {
-            for (int i = 0; i < childrenCount; i++)
-            {
-                data.appendShape((*it)->s->genFromSelf());
-            }
-        } //*/
-
-        /*
-
-        std::vector<lData> arr(pool.size() * childrenCount);
-        for (lData &t : pool)
-        {
-            for (int i = 0; i < childrenCount; i++)
-            {
-                arr[counter++].s = t.s->genFromSelf();
-            }
-        }
-        pool = arr; */
+        } 
     }
 
     float getBest() const { return data[0].val; }

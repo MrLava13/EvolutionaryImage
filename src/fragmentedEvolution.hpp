@@ -52,14 +52,9 @@ private:
     evolution *frags;
     point2 *points;
 
-    int32_t fragCount;
+    int32_t fragCount, current = 0;
 
-    int32_t current = 0;
-
-    static void runThread(evolution *e)
-    {
-        e->runStep();
-    }
+    static void runThread(evolution *e) { e->runStep(); }
 
     static void runAll(fragmentedEvolution *e, threadManager::threaddedStatus *s, int32_t maxIter, int32_t generations, float maxQ)
     {
@@ -97,7 +92,9 @@ private:
     evolution *askForWork()
     {
         if (hasMore())
+        {
             return frags + (current++);
+        }
 
         return nullptr;
     }
@@ -178,8 +175,8 @@ public:
         if (xPad && yPad)
         {
             bounds tb = bounds(
-                gt.getWidth() - xPad, gt.getWidth(),
-                gt.getHeight() - yPad, gt.getHeight())
+                            gt.getWidth() - xPad, gt.getWidth(),
+                            gt.getHeight() - yPad, gt.getHeight())
                             .clamp(gt.getBounds());
             temp = gt.cut(tb);
             *(currentPoint++) = point2(tb.min.x, tb.min.y);
