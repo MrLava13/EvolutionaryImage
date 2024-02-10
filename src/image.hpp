@@ -56,18 +56,61 @@ private:
 
 public:
     image() {}
+    image(point2 s) : image(s.x, s.y) {}
     image(int32_t width_, int32_t height_)
         : width(width_), height(height_), total(width_ * height_), imageBounds(0, width_ - 1, 0, height_ - 1), pixels(new colorInt[total]) {}
-    image(const image &i)
-        : width(i.width), height(i.height), total(i.total), imageBounds(i.imageBounds), pixels(new colorInt[total])
+
+    image(const image &i) = delete; // Copying the whole thing is kinda slow
+    image(image &&i) noexcept
     {
-        colorInt *p = pixels;
-        for (colorInt *o = i.pixels; o < i.pixels + total; ++o)
+        std::swap(width, i.width);
+        std::swap(height, i.height);
+        std::swap(total, i.total);
+        std::swap(imageBounds, i.imageBounds);
+        std::swap(pixels, i.pixels);
+    }
+
+    image &operator=(image &&i) noexcept
+    {
+        if (this != &i)
         {
-            *(p++) = *o;
+            std::swap(width, i.width);
+            std::swap(height, i.height);
+            std::swap(total, i.total);
+            std::swap(imageBounds, i.imageBounds);
+            std::swap(pixels, i.pixels);
+        }
+        return *this;
+    }
+
+    image &operator=(const image &i) noexcept
+    {
+        if (pixels == nullptr)
+        {
+            pixels = new colorInt[i.total];
+        }
+        else if (i.total != total)
+        {
+            delete[] pixels;
+            pixels = new colorInt[i.total];
+        }
+        std::copy(i.pixels, i.pixels + i.total, pixels);
+        total = i.total;
+        width = i.width;
+        height = i.height;
+        imageBounds = i.imageBounds;
+
+        return *this;
+    }
+
+    ~image()
+    {
+        if (pixels != nullptr)
+        {
+            delete[] pixels;
+            pixels = nullptr;
         }
     }
-    ~image() { delete[] pixels; }
 
     int32_t getWidth() const { return width; }
     int32_t getHeight() const { return height; }
@@ -133,15 +176,7 @@ public:
      * @param p
      * @return
      */
-    const color getPixel(const point2 &p) const
-    {
-        /*
-        if (p.x < 0 || p.y < 0 || p.x >= width || p.y >= height)
-        {
-            return getClampedPixel(p);
-        }*/
-        return getPixel(p.x, p.y);
-    }
+    const color getPixel(const point2 &p) const { return getPixel(p.x, p.y); }
     /**
      * @brief Gets the pixel on the screen, even if it is off
      * @param p
@@ -348,7 +383,7 @@ public:
         }
     }
 
-    image cut(bounds area) const
+    image cut(bounds &area) const
     {
         assert(area.isIn(imageBounds.min));
         assert(area.isIn(imageBounds.max));
@@ -360,14 +395,14 @@ public:
         {
             for (int32_t x = area.min.x; x < area.max.x; x++)
             {
-                *(pix++) = pixels[getPixelPos(x,y)];
+                *(pix++) = pixels[getPixelPos(x, y)];
             }
         }
 
         return output;
     }
 
-    void paste(point2 point, const image &im)
+    void paste(point2 &point, const image &im)
     {
         assert(point.x >= 0);
         assert(point.y >= 0);
@@ -424,31 +459,6 @@ public:
     const auto begin() const { return pixels; }
     auto end() { return pixels + total; }
     const auto end() const { return pixels + total; }
-
-    image &operator=(const image &i)
-    {
-        if (pixels == nullptr)
-        {
-            pixels = new colorInt[i.total];
-        }
-        else if (i.total != total)
-        {
-            delete[] pixels;
-            pixels = new colorInt[i.total];
-        }
-        total = i.total;
-
-        colorInt *p = pixels;
-        for (colorInt *o = i.pixels; o < i.pixels + total; ++o)
-        {
-            *(p++) = *o;
-        }
-        width = i.width;
-        height = i.height;
-        imageBounds = i.imageBounds;
-
-        return *this;
-    }
 
     color &operator[](int32_t i)
     {

@@ -44,13 +44,7 @@ private:
         }
     }
 
-    void fill()
-    {
-        for (int32_t i = 0; i < maxSize; i++)
-        {
-            shapes[i] = nullptr;
-        }
-    }
+    void fill() { std::fill_n(shapes, maxSize, nullptr); }
 
 public:
     pool(int32_t s) : maxSize(s), shapes(new poolVal *[s])
@@ -58,6 +52,11 @@ public:
         assert(s > 0);
         fill();
     }
+
+    pool(const pool &p) = delete;
+    pool &operator=(pool &p) = delete;
+    pool &operator=(pool &&p) = delete;
+
     ~pool()
     {
         wipe();
@@ -74,15 +73,8 @@ public:
         if (s > maxSize)
         {
             poolVal **nShapes = new poolVal *[s];
-
-            for (int i = 0; i < maxSize; i++)
-            {
-                nShapes[i] = shapes[i];
-            }
-            for (int i = maxSize; i < s; i++)
-            {
-                nShapes[i] = nullptr;
-            }
+            std::copy(shapes, shapes + maxSize, nShapes);
+            std::fill(nShapes + maxSize, nShapes + s, nullptr);
 
             // Transfer vals
             delete[] shapes;
@@ -106,22 +98,13 @@ public:
 
         if (s > maxSize)
         {
-            for (int i = 0; i < maxSize; i++)
-            {
-                nShapes[i] = shapes[i];
-            }
-            for (int i = maxSize; i < s; i++)
-            {
-                nShapes[i] = nullptr;
-            }
+            std::copy(shapes, shapes + maxSize, nShapes);
+            std::fill(nShapes + maxSize, nShapes + s, nullptr);
         }
         else
         {
             trimFrom(shapes + s);
-            for (int i = 0; i < s; i++)
-            {
-                nShapes[i] = shapes[i];
-            }
+            std::copy(shapes, shapes + s, nShapes);
         }
 
         // Transfer vals
@@ -135,8 +118,6 @@ public:
     {
         assert(sliceAt < size);
         trimFrom(shapes + sliceAt);
-        for (int i = sliceAt; i < maxSize; i++)
-            shapes[i] = nullptr;
         size = sliceAt;
     }
 
@@ -147,7 +128,6 @@ public:
             return;
         }
         wipe();
-        fill();
         size = 0;
     }
 

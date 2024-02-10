@@ -9,7 +9,7 @@
 class evolution
 {
 public:
-    int32_t startingCapacity = 1500,
+    int32_t startingCapacity = 500,
             parentCount = 5,
             childrenCount = 5;
 
