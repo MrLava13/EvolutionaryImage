@@ -24,8 +24,11 @@ struct bounds
     }
     bounds &operator=(bounds &&b) noexcept
     {
-        std::swap(min, b.min);
-        std::swap(max, b.max);
+        if (this != &b)
+        {
+            std::swap(min, b.min);
+            std::swap(max, b.max);
+        }
         return *this;
     }
 

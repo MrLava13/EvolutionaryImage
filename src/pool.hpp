@@ -54,9 +54,24 @@ public:
         fill();
     }
 
-    pool(const pool &p) = delete;
-    pool &operator=(pool &p) = delete;
-    pool &operator=(pool &&p) = delete;
+    pool(const pool &p) = delete;      // No copy
+    pool &operator=(pool &p) = delete; // No copy
+    pool(pool &&p) noexcept
+    {
+        std::swap(maxSize, p.maxSize);
+        std::swap(size, p.size);
+        std::swap(shapes, p.shapes);
+    }
+    pool &operator=(pool &&p) noexcept
+    {
+        if (this != &p)
+        {
+            std::swap(maxSize, p.maxSize);
+            std::swap(size, p.size);
+            std::swap(shapes, p.shapes);
+        }
+        return *this;
+    }
 
     ~pool()
     {

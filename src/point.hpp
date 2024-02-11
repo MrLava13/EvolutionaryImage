@@ -22,10 +22,13 @@ struct base_point
     }
     base_point<T> &operator=(base_point<T> &&p) noexcept
     {
-        std::swap(x, p.x);
-        std::swap(y, p.y);
+        if (this != &p)
+        {
+            std::swap(x, p.x);
+            std::swap(y, p.y);
+        }
         return *this;
-    } 
+    }
 
     /**
      * @brief Clamps the X value between the given values

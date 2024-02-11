@@ -58,9 +58,11 @@ public:
     image() {}
     image(point2 s) : image(s.x, s.y) {}
     image(int32_t width_, int32_t height_)
-        : width(width_), height(height_), total(width_ * height_), imageBounds(0, width_ - 1, 0, height_ - 1), pixels(new colorInt[total]) {}
+        : width(width_), height(height_), total(width_ * height_),
+          imageBounds(0, width_ - 1, 0, height_ - 1), pixels(new colorInt[total]) {}
 
-    image(const image &i) = delete; // Copying the whole thing is kinda slow
+    // Copy the given image
+    image(const image &i) : image(i.width, i.height) { std::copy(i.pixels, i.pixels + i.total, pixels); }
     image(image &&i) noexcept
     {
         std::swap(width, i.width);
@@ -112,8 +114,8 @@ public:
         }
     }
 
-    int32_t getWidth() const { return width; }
-    int32_t getHeight() const { return height; }
+    const int32_t &getWidth() const { return width; }
+    const int32_t &getHeight() const { return height; }
     const bounds &getBounds() const { return imageBounds; }
 
     /**
@@ -274,7 +276,7 @@ public:
         return dif / total;
     }
 
-    void drawBounds(bounds b, const color &c)
+    void drawBounds(const bounds &b, const color &c)
     {
         drawLine(b.min.x, b.max.x, b.min.y, c);
         drawLine(b.min.x, b.max.x, b.max.y, c);
@@ -376,7 +378,7 @@ public:
         }
     }
 
-    image cut(bounds &area) const
+    image cut(const bounds &area) const
     {
         assert(area.isIn(imageBounds.min));
         assert(area.isIn(imageBounds.max));
@@ -395,7 +397,7 @@ public:
         return output;
     }
 
-    void paste(point2 &point, const image &im)
+    void paste(const point2 &point, const image &im)
     {
         assert(point.x >= 0);
         assert(point.y >= 0);
@@ -403,13 +405,6 @@ public:
         assert(point.y + im.height < height);
 
         colorInt *pix = im.pixels;
-
-        /*
-        colorInt *self = pixels + point.x + (point.y * width);
-
-        for(int32_t i = 0; i < im.total; i++) {
-            self[(i % im.width) + (i / im.width * height)] = *(pix++);
-        } */
 
         for (int32_t y = point.y; y < point.y + im.height; y++)
         {

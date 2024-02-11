@@ -4,9 +4,8 @@
 #include "point.hpp"
 #include "color.hpp"
 
-class rando
+namespace rando
 {
-public:
     constexpr static float RAND_DIV = 1.0f / ((float)RAND_MAX);
     template <class T>
     inline static T randMinMax(T a, T b) { return (b - a) * ((T)(((float)std::rand()) * RAND_DIV)) + a; }
@@ -16,28 +15,25 @@ public:
 
     inline static bool randBool() { return 1 == (std::rand() % 2); }
 
-public:
-    rando() {}
+    inline float getRand() { return randMinMax(0.95f, 1.05f); }
 
-    inline float getRand() const { return randMinMax(0.95f, 1.05f); }
-
-    inline color getRandColor() const { return {(uint8_t)randMaxInt(255), (uint8_t)randMaxInt(255), (uint8_t)randMaxInt(255)}; }
+    inline color getRandColor() { return {(uint8_t)randMaxInt(255), (uint8_t)randMaxInt(255), (uint8_t)randMaxInt(255)}; }
 
     template <class T>
-    base_point<T> operator()(const base_point<T> &v, const bounds b = bounds(0.9, 1.1, 0.9, 1.1)) const
+    base_point<T> rand(const base_point<T> &v, const bounds b = bounds(0.9, 1.1, 0.9, 1.1))
     {
         return randBool() ? base_point<T>{
             (T)((float)v.x * randMinMax(b.min.x, b.max.x)),
             (T)((float)v.y * randMinMax(b.min.y, b.max.y))} : v;
     }
-    color operator()(const color &c, const point2f l = point2f(0.8, 1.2)) const
+    color rand(const color &c, const point2f l = point2f(0.8, 1.2))
     {
         return randBool() ? color{
             (uint8_t)((float)c.r * randMinMax(l)),
             (uint8_t)((float)c.g * randMinMax(l)),
             (uint8_t)((float)c.b * randMinMax(l))} : c;
     }
-    float operator()(const float &f) const
+    float rand(const float &f)
     {
         return randBool() ? f * getRand(): f;
     }

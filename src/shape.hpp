@@ -11,13 +11,10 @@ enum class shapeType : char {
 
 class shape
 {
-protected:
-    rando Ran;
-
 public:
     virtual ~shape() {}
 
-    virtual void setRandom(bounds b, const image *im) = 0;
+    virtual void setRandom(const bounds &b, const image *im) = 0;
 
     virtual void addShape(image *v) const = 0;
 

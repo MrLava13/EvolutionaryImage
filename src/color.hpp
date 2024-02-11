@@ -12,7 +12,7 @@ struct color
         : r(r_), g(g_), b(b_), a(a_) {}
     color(const color &c)
         : r(c.r), g(c.g), b(c.b), a(c.a) {}
-    
+
     color(color &&c) noexcept
     {
         std::swap(r, c.r);
@@ -22,12 +22,15 @@ struct color
     }
     color &operator=(color &&c) noexcept
     {
-        std::swap(r, c.r);
-        std::swap(g, c.g);
-        std::swap(b, c.b);
-        std::swap(a, c.a);
+        if (this != &c)
+        {
+            std::swap(r, c.r);
+            std::swap(g, c.g);
+            std::swap(b, c.b);
+            std::swap(a, c.a);
+        }
         return *this;
-    } 
+    }
 
     inline float findColorDifference(const color &two) const
     {

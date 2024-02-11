@@ -14,14 +14,14 @@ public:
     circle(int32_t radius_, point2 center_, color c_)
         : radius(radius_), center(center_), c(c_) {}
 
-    void setRandom(bounds b, [[maybe_unused]] const image *im)
+    void setRandom(const bounds &b, [[maybe_unused]] const image *im)
     {
-        radius = Ran.randMinMax(3, (int32_t)(b.max.x / 4));
+        radius = rando::randMinMax(3, (int32_t)(b.max.x / 4));
         center = {
-            Ran.randMinMax(radius / 2 + (int32_t)b.min.x, (int32_t)b.max.x - radius / 2),
-            Ran.randMinMax(radius / 2 + (int32_t)b.min.y, (int32_t)b.max.y - radius / 2)};
+            rando::randMinMax(radius / 2 + (int32_t)b.min.x, (int32_t)b.max.x - radius / 2),
+            rando::randMinMax(radius / 2 + (int32_t)b.min.y, (int32_t)b.max.y - radius / 2)};
         // c = im->getColorAv<3>(center);
-        c = Ran.getRandColor();
+        c = rando::getRandColor();
     }
 
     void addShape(image *v) const
@@ -60,10 +60,9 @@ public:
 
     shapeType getShapeType() const { return shapeType::circle; }
 
-
     bounds getBounds() const { return bounds(center.x - radius, center.x + radius, center.y - radius, center.y + radius); }
 
-    shape *genFromSelf() const { return new circle(Ran(radius), Ran(center), Ran(c)); }
+    shape *genFromSelf() const { return new circle(rando::rand(radius), rando::rand(center), rando::rand(c)); }
     shape *clone() const { return new circle(radius, center, c); }
 
     void scale(point2f s) { radius *= abs(1 - s.x) > abs(1 - s.y) ? s.x : s.y; }
