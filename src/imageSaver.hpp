@@ -5,6 +5,7 @@
 #include "shapes/rectangle.hpp"
 #include "shapes/triangle.hpp"
 
+/*This certainly does not work... yet*/
 class imageSaver
 {
 public:
