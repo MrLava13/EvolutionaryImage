@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cmath>
 #include <iostream>
+#include <utility>
 
 template <class T>
 struct base_point
@@ -15,17 +16,13 @@ struct base_point
     base_point(const base_point<T> &p) : x(p.x), y(p.y) {}
     template <class F>
     base_point(const base_point<F> &p) : x((T)p.x), y((T)p.y) {}
-    base_point(base_point<T> &&p) noexcept
-    {
-        std::swap(x, p.x);
-        std::swap(y, p.y);
-    }
+    base_point(base_point<T> &&p) noexcept : x(std::exchange(p.x, 0)), y(std::exchange(p.y, 0)) {}
     base_point<T> &operator=(base_point<T> &&p) noexcept
     {
         if (this != &p)
         {
-            std::swap(x, p.x);
-            std::swap(y, p.y);
+            x = std::exchange(p.x, 0);
+            y = std::exchange(p.y, 0);
         }
         return *this;
     }

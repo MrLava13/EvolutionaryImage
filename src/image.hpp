@@ -63,11 +63,8 @@ public:
 
     // Copy the given image
     image(const image &i) : image(i.width, i.height) { std::copy(i.pixels, i.pixels + i.total, pixels); }
-    image(image &&i) noexcept
+    image(image &&i) noexcept : width(std::exchange(i.width, 0)), height(std::exchange(i.height, 0)), total(std::exchange(i.total, 0))
     {
-        std::swap(width, i.width);
-        std::swap(height, i.height);
-        std::swap(total, i.total);
         std::swap(imageBounds, i.imageBounds);
         std::swap(pixels, i.pixels);
     }
@@ -76,9 +73,9 @@ public:
     {
         if (this != &i)
         {
-            std::swap(width, i.width);
-            std::swap(height, i.height);
-            std::swap(total, i.total);
+            width = std::exchange(i.width, 0);
+            height = std::exchange(i.height, 0);
+            total = std::exchange(i.total, 0);
             std::swap(imageBounds, i.imageBounds);
             std::swap(pixels, i.pixels);
         }

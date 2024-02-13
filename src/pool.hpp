@@ -75,7 +75,12 @@ public:
 
     ~pool()
     {
-        wipe();
+        for (int32_t i = 0; i < maxSize; i++)
+        {
+            if (shapes[i] == nullptr)
+                continue;
+            delete shapes[i];
+        }
         delete[] shapes;
         shapes = nullptr;
     }
@@ -100,7 +105,6 @@ public:
             return;
         }
 
-        trimFrom(shapes + s);
         size = size > s ? s : size;
     }
 
@@ -147,9 +151,19 @@ public:
         size = 0;
     }
 
+    void replaceAt(int32_t i, shape *s)
+    {
+        assert(i < maxSize);
+        if (shapes[i] != nullptr)
+            delete shapes[i];
+        (shapes[i] = new poolVal)->s = s;
+    }
+
     void appendShape(shape *shape)
     {
         assert(size < maxSize);
+        if (shapes[size] != nullptr)
+            delete shapes[size];
         (shapes[size++] = new poolVal)->s = shape;
     }
 

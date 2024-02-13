@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <utility>
 struct color
 {
     uint8_t r = 0, g = 0, b = 0, a = 0;
@@ -13,21 +14,15 @@ struct color
     color(const color &c)
         : r(c.r), g(c.g), b(c.b), a(c.a) {}
 
-    color(color &&c) noexcept
-    {
-        std::swap(r, c.r);
-        std::swap(g, c.g);
-        std::swap(b, c.b);
-        std::swap(a, c.a);
-    }
+    color(color &&c) noexcept : r(std::exchange(c.r, 0)), g(std::exchange(c.g, 0)), b(std::exchange(c.b, 0)), a(std::exchange(c.a, 0)) {}
     color &operator=(color &&c) noexcept
     {
         if (this != &c)
         {
-            std::swap(r, c.r);
-            std::swap(g, c.g);
-            std::swap(b, c.b);
-            std::swap(a, c.a);
+            r = std::exchange(c.r, 0);
+            g = std::exchange(c.g, 0);
+            b = std::exchange(c.b, 0);
+            a = std::exchange(c.a, 0);
         }
         return *this;
     }
