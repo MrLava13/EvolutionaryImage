@@ -10,12 +10,12 @@ shape *getRandomShape()
 {
     // return new circle;
     // return new rectangle;
-    //return new triangle;
+    // return new triangle;
 
-    const uint8_t v = rando::randMaxInt<uint8_t>(2);
+    uint8_t v = rando::randMaxInt(2);
 
-    //if (v == 2)
-    //    return new circle;
+    // if (v == 2)
+    //     return new circle;
 
     if (v == 1)
         return new rectangle;

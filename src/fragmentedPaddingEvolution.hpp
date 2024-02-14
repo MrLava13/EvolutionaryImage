@@ -21,8 +21,6 @@ public:
 
     void fragment()
     {
-        // missing edge case for if smaller than both... the menace
-
         int32_t xCount = gt.getWidth() / fragmentationSize,
                 xPad = gt.getWidth() % fragmentationSize,
                 yCount = gt.getHeight() / fragmentationSize,

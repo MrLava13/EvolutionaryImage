@@ -13,14 +13,21 @@ struct bounds
         assert(minX < maxX);
         assert(minY < maxY);
     }
-    bounds(const point2f &min_, const point2f &max_)
-        : min(min_), max(max_) {}
-    bounds(const bounds &b)
-        : min(b.min), max(b.max) {}
+    bounds(const point2f &min_, const point2f &max_) : min(min_), max(max_) {}
+
+    bounds(const bounds &b) : min(b.min), max(b.max) {}
     bounds(bounds &&b) noexcept
     {
         std::swap(min, b.min);
         std::swap(max, b.max);
+    }
+    
+    bounds &operator=(const bounds &v)
+    {
+        min = v.min;
+        max = v.max;
+
+        return *this;
     }
     bounds &operator=(bounds &&b) noexcept
     {
@@ -29,13 +36,6 @@ struct bounds
             std::swap(min, b.min);
             std::swap(max, b.max);
         }
-        return *this;
-    }
-    bounds &operator=(const bounds &v)
-    {
-        min = v.min;
-        max = v.max;
-
         return *this;
     }
 

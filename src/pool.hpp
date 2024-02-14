@@ -24,11 +24,7 @@ private:
     int32_t maxSize, size = 0;
     poolVal **shapes;
 
-    void wipe()
-    {
-        assert(shapes != nullptr);
-        trimFrom(shapes);
-    }
+    void wipe() { trimFrom(shapes); }
 
     void trimFrom(poolVal **start)
     {
@@ -56,6 +52,7 @@ public:
 
     pool(const pool &p) = delete;      // No copy
     pool &operator=(pool &p) = delete; // No copy
+
     pool(pool &&p) noexcept
     {
         std::swap(maxSize, p.maxSize);

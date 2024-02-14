@@ -60,9 +60,18 @@ public:
 
     shapeType getShapeType() const { return shapeType::circle; }
 
+    const color &getColor() const { return c; }
     bounds getBounds() const { return bounds(center.x - radius, center.x + radius, center.y - radius, center.y + radius); }
 
+    shape *genFromSelfAndColor(const color &col) const { return new circle(rando::rand(radius), rando::rand(center), rando::rand(c, col)); }
     shape *genFromSelf() const { return new circle(rando::rand(radius), rando::rand(center), rando::rand(c)); }
+    shape *genFromParent(const shape *s) const
+    {
+        // I think I am commiting a crime with this casting
+        const circle *r = (const circle *)s;
+        return new circle(rando::rand(radius, r->radius), rando::rand(center, r->center), rando::rand(c, r->c));
+    }
+
     shape *clone() const { return new circle(radius, center, c); }
 
     void scale(point2f s) { radius *= abs(1 - s.x) > abs(1 - s.y) ? s.x : s.y; }

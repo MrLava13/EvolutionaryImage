@@ -69,19 +69,6 @@ public:
         std::swap(pixels, i.pixels);
     }
 
-    image &operator=(image &&i) noexcept
-    {
-        if (this != &i)
-        {
-            width = std::exchange(i.width, 0);
-            height = std::exchange(i.height, 0);
-            total = std::exchange(i.total, 0);
-            std::swap(imageBounds, i.imageBounds);
-            std::swap(pixels, i.pixels);
-        }
-        return *this;
-    }
-
     image &operator=(const image &i) noexcept
     {
         if (pixels == nullptr)
@@ -99,6 +86,18 @@ public:
         height = i.height;
         imageBounds = i.imageBounds;
 
+        return *this;
+    }
+    image &operator=(image &&i) noexcept
+    {
+        if (this != &i)
+        {
+            width = std::exchange(i.width, 0);
+            height = std::exchange(i.height, 0);
+            total = std::exchange(i.total, 0);
+            std::swap(imageBounds, i.imageBounds);
+            std::swap(pixels, i.pixels);
+        }
         return *this;
     }
 
@@ -288,6 +287,9 @@ public:
      */
     float compareImages(const image &im) const
     {
+        assert(width == im.width);
+        assert(height == im.height);
+        
         float dif = 0;
         for (int32_t i = 0; i < total; i++)
         {
@@ -331,11 +333,7 @@ public:
             return;
         }
 
-        colorInt col = c;
-        for (auto p = pixels + getPixelPos(x0 > 0 ? x0 : 0, y); p != pixels + getPixelPos(x1 < width ? x1 : width, y); p++)
-        {
-            *p = col;
-        }
+        std::fill(pixels + getPixelPos(x0 > 0 ? x0 : 0, y), pixels + getPixelPos(x1 < width ? x1 : width, y), c);
     }
 
     /**

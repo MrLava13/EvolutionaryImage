@@ -9,14 +9,29 @@ struct base_point
 {
     T x, y;
 
-    static constexpr std::streamsize d_size = sizeof(T);
-
     base_point() : x(0), y(0) {}
-    base_point(const T X, const T Y) : x(X), y(Y) {}
+    base_point(const T x_, const T y_) : x(x_), y(y_) {}
+
     base_point(const base_point<T> &p) : x(p.x), y(p.y) {}
     template <class F>
-    base_point(const base_point<F> &p) : x((T)p.x), y((T)p.y) {}
+    base_point(const base_point<F> &p) : x(static_cast<T>(p.x)), y(static_cast<T>(p.y)) {}
     base_point(base_point<T> &&p) noexcept : x(std::exchange(p.x, 0)), y(std::exchange(p.y, 0)) {}
+
+    base_point<T> &operator=(const base_point<T> &p)
+    {
+        x = p.x;
+        y = p.y;
+
+        return *this;
+    }
+    template <class F>
+    base_point<T> &operator=(const base_point<F> &p)
+    {
+        x = static_cast<T>(p.x);
+        y = static_cast<T>(p.y);
+
+        return *this;
+    }
     base_point<T> &operator=(base_point<T> &&p) noexcept
     {
         if (this != &p)
@@ -144,32 +159,15 @@ struct base_point
     bool operator==(const base_point<T> &p) const { return x == p.x && y == p.y; }
     bool operator!=(const base_point<T> &p) const { return x != p.x || y != p.y; }
 
-    base_point<T> &operator=(const base_point<T> &p)
-    {
-        x = p.x;
-        y = p.y;
-
-        return *this;
-    }
-
-    template <class F>
-    base_point<T> &operator=(const base_point<F> &p)
-    {
-        x = (T)p.x;
-        y = (T)p.y;
-
-        return *this;
-    }
-
     void write(std::ofstream &out) const
     {
-        out.write((const char *)&x, d_size);
-        out.write((const char *)&y, d_size);
+        out.write((const char *)&x, sizeof(T));
+        out.write((const char *)&y, sizeof(T));
     }
     void read(std::ifstream &in)
     {
-        in.read((char *)&x, d_size);
-        in.read((char *)&y, d_size);
+        in.read((char *)&x, sizeof(T));
+        in.read((char *)&y, sizeof(T));
     }
 
     // template <class F>

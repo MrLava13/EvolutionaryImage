@@ -3,7 +3,8 @@
 #include "image.hpp"
 #include "rando.hpp"
 
-enum class shapeType : char {
+enum class shapeType : char
+{
     triangle,
     rectangle,
     circle
@@ -18,9 +19,12 @@ public:
 
     virtual void addShape(image *v) const = 0;
 
+    virtual const color &getColor() const = 0;
     virtual bounds getBounds() const = 0;
 
     virtual shape *genFromSelf() const = 0;
+    virtual shape *genFromSelfAndColor(const color &c) const = 0;
+    virtual shape *genFromParent(const shape *s) const = 0;
     virtual shape *clone() const = 0;
 
     virtual void scale(point2f s) = 0;

@@ -11,28 +11,38 @@ public:
 
     struct threadManager
     {
-        struct threaddedStatus
+        enum class status
         {
-            bool ir = false;
+            NOT_STARTED,
+            RUNNING,
+            FINISHED
+        };
+        struct threadStatus
+        {
+            status s = status::NOT_STARTED;
             int32_t it = 0, cc = 0;
             float q = INFINITY;
 
-            threaddedStatus() {}
-            ~threaddedStatus() {}
+            threadStatus() {}
+            ~threadStatus() {}
 
-            bool isRunning() const { return ir; }
+            status getStatus() const { return s; }
             int32_t getIter() const { return it; }
             float getQuality() const { return q; }
             int32_t getCurrent() const { return cc; }
         };
 
-        int32_t threadCount;
-        threaddedStatus *threads;
+        int32_t threadCount = 0;
+        threadStatus *threads = nullptr;
 
         std::vector<std::thread> ts;
 
-        threadManager(int32_t count) : threadCount(count), threads(new threaddedStatus[count]), ts(count) {}
-        ~threadManager() { delete[] threads; }
+        threadManager(int32_t count) : threadCount(count), threads(count <= 0 ? nullptr : new threadStatus[count]), ts(count) {}
+        ~threadManager()
+        {
+            if (threads != nullptr)
+                delete[] threads;
+        }
         threadManager(threadManager &&t) noexcept
         {
             std::swap(threadCount, t.threadCount);
@@ -52,17 +62,38 @@ public:
         threadManager(threadManager &t) = delete;
         threadManager &operator=(threadManager &t) = delete;
 
-        bool isRunning()
+        bool isRunning() const
         {
             for (int32_t i = 0; i < threadCount; i++)
             {
-                if (threads[i].isRunning())
+                if (threads[i].getStatus() == threadManager::status::RUNNING)
                 {
                     return true;
                 }
             }
             return false;
         }
+
+        int32_t getLargestFrag() const
+        {
+            int32_t largest = 0;
+            for (int32_t i = 0; i < threadCount; i++)
+            {
+                largest = largest > threads[i].cc ? largest : threads[i].cc;
+            }
+            return largest;
+        }
+
+        void waitTillFinished() const
+        {
+            while (isRunning())
+            {
+                using namespace std::chrono_literals;
+                std::this_thread::sleep_for(5ms);
+            }
+        }
+
+        const threadStatus operator[](int32_t i) const { return threads[i]; }
     };
 
 protected:
@@ -74,10 +105,10 @@ protected:
 
     static void runThread(evolution *e) { e->runStep(); }
 
-    static void runAll(fragmentedEvolution *e, threadManager::threaddedStatus *s, int32_t maxIter, int32_t generations, float maxQ)
+    static void runAll(fragmentedEvolution *e, threadManager::threadStatus *s, int32_t maxIter, int32_t generations, float maxQ)
     {
         evolution *ev;
-        s->ir = true;
+        s->s = threadManager::status::RUNNING;
         while ((ev = e->askForWork()) != nullptr)
         {
             s->cc = ev - e->frags;
@@ -104,7 +135,7 @@ protected:
                 s->q = best;
             }
         }
-        s->ir = false;
+        s->s = threadManager::status::FINISHED;
     }
 
     evolution *askForWork()
@@ -131,6 +162,11 @@ public:
 
     void fragment()
     {
+        if (frags != nullptr)
+            delete[] frags;
+        if (points != nullptr)
+            delete[] points;
+
         int32_t xCount = gt.getWidth() / fragmentationSize,
                 xPad = gt.getWidth() % fragmentationSize,
                 yCount = gt.getHeight() / fragmentationSize,
@@ -218,20 +254,21 @@ public:
     bool hasMore() { return current < fragCount; }
     void nextFrag() { current++; }
 
-    threadManager *runFor(int32_t maxIter, int32_t generations, float maxQ)
+    int32_t getFragCount() const { return fragCount; }
+
+    threadManager runFor(int32_t maxIter, int32_t generations, float maxQ)
     {
         if (threadCount <= 1)
         {
-            return nullptr;
+            return {0};
         }
 
-        threadManager *output = new threadManager(threadCount);
+        threadManager output = threadManager(threadCount);
 
-        threadManager::threaddedStatus *c = output->threads;
-        for (std::thread &t : output->ts)
+        threadManager::threadStatus *c = output.threads;
+        for (std::thread &t : output.ts)
         {
-            t = std::thread(runAll, this, c++, maxIter, generations, maxQ);
-            t.detach();
+            (t = std::thread(runAll, this, c++, maxIter, generations, maxQ)).detach();
         }
 
         return output;

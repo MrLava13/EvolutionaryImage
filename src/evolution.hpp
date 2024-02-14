@@ -11,7 +11,7 @@ class evolution
 public:
     int32_t startingCapacity = 500,
             parentCount = 5,
-            childrenCount = 5;
+            childrenCount = 10; /*Children per parent*/
 
     int32_t threadCount = std::thread::hardware_concurrency();
 
@@ -136,9 +136,9 @@ public:
         {
             for (int c = 0; c < childrenCount; c++)
             {
-                data.appendShape(data[p].s->genFromSelf());
+                data.appendShape(data[p].s->genFromSelfAndColor(data[rando::randMaxInt(parentCount)].s->getColor()));
             }
-        } 
+        }
     }
 
     float getBest() const { return data[0].val; }

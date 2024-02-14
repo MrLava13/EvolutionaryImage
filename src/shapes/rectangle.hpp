@@ -22,7 +22,9 @@ public:
         //    tmp = getBounds();
         // c = im->getClampedPixel(center);
         //  c = im->getColorAv<7>(center);
+        // c = im->getPixel(rando::randMinMax(0,im->getWidth() - 1),rando::randMinMax(0,im->getHeight() - 1));
         c = rando::getRandColor();
+        // c = rando::randBool() ? rando::getRandColor() : im->getClampedPixel(center);
     }
 
     void addShape(image *v) const
@@ -37,6 +39,7 @@ public:
         // v->bresenhamLine(p1, p3, c);
     }
 
+    const color &getColor() const { return c; }
     bounds getBounds() const
     {
         point2f halfSize = size / 2;
@@ -66,7 +69,14 @@ public:
 
     shapeType getShapeType() const { return shapeType::rectangle; }
 
+    shape *genFromSelfAndColor(const color &col) const { return new rectangle(rando::rand(angle), rando::rand(center), rando::rand(size), rando::rand(rando::randBool() ? c : col)); }
     shape *genFromSelf() const { return new rectangle(rando::rand(angle), rando::rand(center), rando::rand(size), rando::rand(c)); }
+    shape *genFromParent(const shape *s) const
+    {
+        // I think I am commiting a crime with this casting
+        const rectangle *r = (const rectangle *)s;
+        return new rectangle(rando::rand(angle, r->angle), rando::rand(center, r->center), rando::rand(size, r->size), rando::rand(c, r->c));
+    }
 
     shape *clone() const { return new rectangle(angle, center, size, c); }
 
