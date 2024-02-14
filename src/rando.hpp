@@ -3,17 +3,18 @@
 #include <cstdlib>
 #include "point.hpp"
 #include "color.hpp"
+#include "bounds.hpp"
 
 namespace rando
 {
-    constexpr static float RAND_DIV = 1.0f / ((float)RAND_MAX);
+    constexpr float RAND_DIV = 1.0f / ((float)RAND_MAX);
     template <class T>
-    inline static T randMinMax(T a, T b) { return (b - a) * ((T)(((float)std::rand()) * RAND_DIV)) + a; }
-    inline static float randMinMax(const point2f &p) { return randMinMax(p.x, p.y); }
+    inline T randMinMax(T a, T b) { return (b - a) * ((T)(((float)std::rand()) * RAND_DIV)) + a; }
+    inline float randMinMax(const point2f &p) { return randMinMax(p.x, p.y); }
     template <class T>
-    inline static T randMaxInt(T a) { return std::rand() % a; }
+    inline T randMaxInt(T a) { return std::rand() % a; }
 
-    inline static bool randBool() { return 1 == (std::rand() % 2); }
+    inline bool randBool() { return 1 == (std::rand() % 2); }
 
     inline float getRand() { return randMinMax(0.95f, 1.05f); }
 

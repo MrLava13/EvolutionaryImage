@@ -77,9 +77,8 @@ public:
     {
         for (int32_t i = 0; i < maxSize; i++)
         {
-            if (shapes[i] == nullptr)
-                continue;
-            delete shapes[i];
+            if (shapes[i] != nullptr)
+                delete shapes[i];
         }
         delete[] shapes;
         shapes = nullptr;

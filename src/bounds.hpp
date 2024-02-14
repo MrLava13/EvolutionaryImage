@@ -31,6 +31,13 @@ struct bounds
         }
         return *this;
     }
+    bounds &operator=(const bounds &v)
+    {
+        min = v.min;
+        max = v.max;
+
+        return *this;
+    }
 
     bounds clamp(const bounds &b) const { return {min.clamp(b.min, b.max), max.clamp(b.min, b.max)}; }
 
@@ -43,12 +50,4 @@ struct bounds
 
     bool operator==(const bounds &b) const { return min == b.min && max == b.max; }
     bool operator!=(const bounds &b) const { return min != b.min || max != b.max; }
-
-    bounds &operator=(const bounds &v)
-    {
-        min = v.min;
-        max = v.max;
-
-        return *this;
-    }
 };

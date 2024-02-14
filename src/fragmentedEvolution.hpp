@@ -14,8 +14,8 @@ public:
         struct threaddedStatus
         {
             bool ir = false;
-            int32_t it, cc;
-            float q;
+            int32_t it = 0, cc = 0;
+            float q = INFINITY;
 
             threaddedStatus() {}
             ~threaddedStatus() {}
@@ -33,6 +33,24 @@ public:
 
         threadManager(int32_t count) : threadCount(count), threads(new threaddedStatus[count]), ts(count) {}
         ~threadManager() { delete[] threads; }
+        threadManager(threadManager &&t) noexcept
+        {
+            std::swap(threadCount, t.threadCount);
+            std::swap(threads, t.threads);
+            std::swap(ts, t.ts);
+        }
+        threadManager &operator=(threadManager &&t) noexcept
+        {
+            if (this != &t)
+            {
+                std::swap(threadCount, t.threadCount);
+                std::swap(threads, t.threads);
+                std::swap(ts, t.ts);
+            }
+            return *this;
+        }
+        threadManager(threadManager &t) = delete;
+        threadManager &operator=(threadManager &t) = delete;
 
         bool isRunning()
         {
@@ -47,10 +65,10 @@ public:
         }
     };
 
-private:
+protected:
     image gt;
-    evolution *frags;
-    point2 *points;
+    evolution *frags = nullptr;
+    point2 *points = nullptr;
 
     int32_t fragCount, current = 0;
 
@@ -103,16 +121,16 @@ public:
     fragmentedEvolution(/* args */) {}
     ~fragmentedEvolution()
     {
-        delete[] frags;
-        delete[] points;
+        if (frags != nullptr)
+            delete[] frags;
+        if (points != nullptr)
+            delete[] points;
     }
 
     void setGTImage(const image &im) { gt = im; }
 
     void fragment()
     {
-        // missing edge case for if smaller than both... the menace
-
         int32_t xCount = gt.getWidth() / fragmentationSize,
                 xPad = gt.getWidth() % fragmentationSize,
                 yCount = gt.getHeight() / fragmentationSize,

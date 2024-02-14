@@ -4,7 +4,7 @@
 #include "shapes/rectangle.hpp"
 #include "shapes/triangle.hpp"
 #include "shapes/circle.hpp"
-#include "random.hpp"
+#include "rando.hpp"
 
 shape *getRandomShape()
 {

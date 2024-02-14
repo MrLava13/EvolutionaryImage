@@ -1,7 +1,7 @@
 #pragma once
 #include "bounds.hpp"
 #include "image.hpp"
-#include "random.hpp"
+#include "rando.hpp"
 
 enum class shapeType : char {
     triangle,
