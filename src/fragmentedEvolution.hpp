@@ -256,22 +256,29 @@ public:
 
     int32_t getFragCount() const { return fragCount; }
 
-    threadManager runFor(int32_t maxIter, int32_t generations, float maxQ)
+    threadManager runFor(int32_t maxIter, int32_t generations, float maxQ, bool threaded = true)
     {
-        if (threadCount <= 1)
+        if (threaded)
         {
-            return {0};
+            if (threadCount <= 1)
+            {
+                return {0};
+            }
+
+            threadManager output = threadManager(threadCount);
+
+            threadManager::threadStatus *c = output.threads;
+            for (std::thread &t : output.ts)
+            {
+                (t = std::thread(runAll, this, c++, maxIter, generations, maxQ)).detach();
+            }
+
+            return output;
         }
-
-        threadManager output = threadManager(threadCount);
-
-        threadManager::threadStatus *c = output.threads;
-        for (std::thread &t : output.ts)
-        {
-            (t = std::thread(runAll, this, c++, maxIter, generations, maxQ)).detach();
-        }
-
-        return output;
+        threadManager::threadStatus *c = new threadManager::threadStatus;
+        runAll(this, c, maxIter, generations, maxQ);
+        delete c;
+        return {0};
     }
 
     void runThreadedStep()

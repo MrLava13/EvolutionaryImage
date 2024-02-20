@@ -9,12 +9,13 @@
 namespace rando
 {
     std::minstd_rand RAND_G;
-    constexpr float RAND_DIV = 1.0f / RAND_G.max();
+    template <class T>
+    constexpr T RAND_DIV = 1.0f / RAND_G.max();
 
     inline int rand() { return RAND_G(); }
 
     template <class T>
-    inline T randMinMax(T a, T b) { return (b - a) * ((T)(((float)rand()) * RAND_DIV)) + a; }
+    inline T randMinMax(T a, T b) { return ((float)(b - a)) * ((T)(((float)rand()) * RAND_DIV<float>)) + a; }
     inline float randMinMax(const point2f &p) { return randMinMax(p.x, p.y); }
     template <class T>
     inline T randMaxInt(T a) { return rand() % a; }
@@ -33,14 +34,22 @@ namespace rando
     {
         return randMaxInt(RAND_ORIGINAL_CHANCE) != 0
                    ? base_point<T>(
-                         (T)((float)v.x * randMinMax(b.min.x, b.max.x)),
-                         (T)((float)v.y * randMinMax(b.min.y, b.max.y)))
+                         (float)v.x * randMinMax(b.min.x, b.max.x),
+                         (float)v.y * randMinMax(b.min.y, b.max.y))
                    : v;
     }
     template <class T>
     base_point<T> rand(const base_point<T> &v1, const base_point<T> &v2, const bounds b = RAND_POINT_BOUNDS)
     {
         return rand(randBool() ? v1 : v2, b);
+    }
+    point2f rand(const point2f &v, const bounds b = RAND_POINT_BOUNDS)
+    {
+        return randMaxInt(RAND_ORIGINAL_CHANCE) != 0
+                   ? point2f(
+                         v.x * randMinMax(b.min.x, b.max.x),
+                         v.y * randMinMax(b.min.y, b.max.y))
+                   : v;
     }
     color rand(const color &c, const point2f l = RAND_COLOR_BOUNDS)
     {

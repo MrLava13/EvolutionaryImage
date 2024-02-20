@@ -170,8 +170,6 @@ struct base_point
         in.read((char *)&y, sizeof(T));
     }
 
-    // template <class F>
-    // operator base_point<F>() const { return base_point<F>(*this); }
 };
 template <class T>
 std::ostream &operator<<(std::ostream &os, const base_point<T> &p) { return os << '(' << p.x << ", " << p.y << ')'; }

@@ -289,7 +289,7 @@ public:
     {
         assert(width == im.width);
         assert(height == im.height);
-        
+
         float dif = 0;
         for (int32_t i = 0; i < total; i++)
         {

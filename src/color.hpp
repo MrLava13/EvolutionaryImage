@@ -4,10 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
+
 struct color
 {
     uint8_t r = 0, g = 0, b = 0, a = 0;
-    
+
     color() {}
     color(uint8_t r_, uint8_t g_, uint8_t b_, uint8_t a_ = 255)
         : r(r_), g(g_), b(b_), a(a_) {}
@@ -38,13 +39,6 @@ struct color
     inline float findColorDifference(const color &two) const
     {
         return std::abs(r - two.r) + std::abs(g - two.g) + std::abs(b - two.b) + std::abs(a - two.a);
-        /*
-        float rt = ((float)r) - ((float)two.r),
-              gt = ((float)g) - ((float)two.g),
-              bt = ((float)b) - ((float)two.b),
-              at = ((float)a) - ((float)two.a);
-
-        return std::sqrt((rt * rt) + (gt * gt) + (bt * bt) + (at * at)); */
     }
 
     color LerpRGB(color a_, color b_, float t)
@@ -73,8 +67,6 @@ struct color
 
     bool operator==(const color &c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
     bool operator!=(const color &c) const { return r != c.r || g != c.g || b != c.b || a != c.a; }
-
-    // constexpr static color WHITE = color(255, 255, 255);
 };
 
 std::ostream &operator<<(std::ostream &os, const color &c)
@@ -93,7 +85,7 @@ union colorInt
 
     colorInt(const color &co) : c(co) {}
     colorInt(const colorInt &cc) : i(cc.i) {}
-    colorInt(colorInt &&cc) noexcept { std::swap(i, cc.i); }
+    colorInt(colorInt &&cc) noexcept : i(std::exchange(cc.i, 0)) {}
 
     colorInt &operator=(const color &col)
     {
@@ -107,7 +99,7 @@ union colorInt
     }
     colorInt &operator=(colorInt &&cc) noexcept
     {
-        std::swap(i, cc.i);
+        i = std::exchange(cc.i, 0);
         return *this;
     }
 };
