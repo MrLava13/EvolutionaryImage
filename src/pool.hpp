@@ -1,4 +1,6 @@
 #pragma once
+#include <ostream>
+#include <fstream>
 #include "shape.hpp"
 
 class pool
@@ -10,6 +12,11 @@ public:
         float val = INFINITY;
 
         poolVal() {}
+        poolVal(shape *s_, float val_) : s(s_), val(val_) {}
+        poolVal(poolVal &&p) : val(std::exchange(p.val, 0))
+        {
+            std::swap(s, p.s);
+        }
         ~poolVal()
         {
             if (s != nullptr)
@@ -20,11 +27,9 @@ public:
         }
     };
 
-private:
+protected:
     int32_t maxSize, size = 0;
     poolVal **shapes;
-
-    void wipe() { trimFrom(shapes); }
 
     void trimFrom(poolVal **start)
     {
@@ -143,7 +148,6 @@ public:
         {
             return;
         }
-        wipe();
         size = 0;
     }
 
@@ -151,15 +155,19 @@ public:
     {
         assert(i < maxSize);
         if (shapes[i] != nullptr)
-            delete shapes[i];
-        (shapes[i] = new poolVal)->s = s;
+            delete shapes[i]->s;
+        shapes[i]->s = s;
     }
 
     void appendShape(shape *shape)
     {
         assert(size < maxSize);
-        if (shapes[size] != nullptr)
+        if (shapes[size] != nullptr){
             delete shapes[size];
+            //delete shapes[size]->s;
+            //shapes[size]->s = shape;
+            //return;
+        }
         (shapes[size++] = new poolVal)->s = shape;
     }
 
@@ -171,7 +179,13 @@ public:
         return output;
     }
 
+    void wipe() { trimFrom(shapes); }
+
+
+    bool exists(int32_t i) const { return i < 0 || i > size || shapes[i] != nullptr; }
+
     int32_t getSize() const { return size; }
+    void setSize(int32_t s) { size = s; }
 
     poolVal **begin() { return shapes; }
     poolVal **end() { return shapes + size; }
@@ -186,4 +200,48 @@ public:
         assert(i < size);
         return *shapes[i];
     }
+
+    friend std::ostream &operator<<(std::ostream &o, const pool &p);
 };
+
+std::ostream &operator<<(std::ostream &o, const pool &p)
+{
+    if (p.getSize() == 0)
+    {
+        o << "pool is labeled empty\n";
+    }
+    for (pool::poolVal **i = p.shapes; i != p.shapes + p.maxSize; i++)
+    {
+        o << i << ": ";
+        if ((*i) == nullptr)
+        {
+            o << " NULL/noexist";
+        }
+        else
+        {
+            if ((*i)->s == nullptr)
+            {
+                o << "NULLSHAPE";
+            }
+            else
+            {
+                // print shape type
+                if ((*i)->s->getShapeType() == shapeType::circle)
+                    o << "Circle";
+                else if ((*i)->s->getShapeType() == shapeType::triangle)
+                    o << "Triangle";
+                else if ((*i)->s->getShapeType() == shapeType::rectangle)
+                    o << "Rectangle";
+                else
+                    o << "Unknown Shape";
+
+                o << '-' << std::hex << (*i);
+            }
+            o << '-' << (*i)->val;
+        }
+
+        o << "\n";
+    }
+
+    return o;
+}

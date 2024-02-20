@@ -120,7 +120,6 @@ protected:
                 for (int i = 0; i < generations; i++)
                 {
                     ev->runStep();
-                    ev->sort();
                     best = ev->getBest();
                     if (i == 0)
                         ev->resize();

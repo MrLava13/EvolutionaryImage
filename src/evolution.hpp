@@ -9,9 +9,69 @@
 class evolution
 {
 public:
+    class parentPool : public pool
+    {
+    protected:
+        void popShapeInto(poolVal *pv, int32_t spot)
+        {
+            assert(spot < maxSize);
+            assert(spot >= 0);
+
+            if (shapes[maxSize - 1] != nullptr)
+                delete shapes[maxSize - 1];
+
+            for (int32_t i = maxSize - 1; i > spot; i--)
+            {
+                shapes[i] = shapes[i - 1];
+            }
+
+            shapes[spot] = pv;
+        }
+
+    public:
+        float min = INFINITY;
+
+        parentPool(int32_t s) : pool(s) {}
+
+        void reset()
+        {
+            min = INFINITY;
+            resetAll();
+        }
+
+        void tryAdd(poolVal *p)
+        {
+            if (size < maxSize)
+            {
+                shapes[size++] = new poolVal(std::exchange(p->s, nullptr), p->val);
+                min = min > p->val ? p->val : min;
+                return;
+            }
+            if (p->val > min)
+                return;
+
+            min = p->val;
+
+            for (int32_t i = 0; i < size; i++)
+            {
+                if (shapes[i]->val > p->val)
+                {
+                    if (i == size)
+                        min = p->val;
+                    if (size < maxSize)
+                        size++;
+
+                    popShapeInto(new poolVal(std::exchange(p->s, nullptr), p->val), i);
+                    break;
+                }
+            }
+        }
+    };
+
+public:
     int32_t startingCapacity = 500,
             parentCount = 5,
-            childrenCount = 10; /*Children per parent*/
+            childrenCount = 50; /*Children per parent*/
 
     int32_t threadCount = std::thread::hardware_concurrency();
 
@@ -19,11 +79,12 @@ public:
 
     image last, current, gt;
     pool data;
+    parentPool pp;
 
 private:
     image::cachedRows cacheH;
 
-    float lastPerf;
+    float lastPerf = INFINITY;
 
     static void runThread(evolution *e, int32_t start, int32_t end)
     {
@@ -41,18 +102,20 @@ private:
                 e->cacheH);  //*/
             if ((*i)->val == e->lastPerf)
                 (*i)->val = INFINITY;
+            e->pp.tryAdd(*i);
         }
     }
 
 public:
-    evolution() : data(startingCapacity) {}
+    evolution() : data(startingCapacity), pp(parentCount) {}
 
     bool addBestToImage()
     {
-        if (lastPerf > data[0].val)
+        if (lastPerf > pp[0].val)
         {
+            lastPerf = pp[0].val;
             current = last;
-            data[0].s->addShape(&current);
+            pp[0].s->addShape(&current);
             last = current;
             return true;
         }
@@ -60,8 +123,9 @@ public:
     }
     void clearAndFill()
     {
+        pp.reset();
+        pp.wipe();  //fixes the memory leak until I find what dumb thing is broken
         data.resetAll();
-        data.resize(startingCapacity);
 
         for (int i = 0; i < startingCapacity; i++)
         {
@@ -77,9 +141,6 @@ public:
         {
             return runStep();
         }
-
-        lastPerf = gt.compareImages(last);
-        // cacheH = gt.getCachedH(last);
 
         std::vector<std::thread> threads(threadCount);
 
@@ -101,8 +162,6 @@ public:
 
     void runStep()
     {
-        lastPerf = gt.compareImages(last);
-        // cacheH = gt.getCachedH(last);
         // Test each
         for (auto &t : data)
         {
@@ -112,6 +171,7 @@ public:
             // t.val = gt.compareBounds(current, t.s->getBounds(), cacheH);
             if (t->val == lastPerf)
                 t->val = INFINITY;
+            pp.tryAdd(t);
         }
     }
 
@@ -124,24 +184,22 @@ public:
 
     void resize()
     {
-        // data.resize(100);
-        data.resize(parentCount * (childrenCount + 1)); // Add one to keep room for the parents themselves
+        data.resize(parentCount * childrenCount);
     }
 
     void refill()
     {
-        data.sliceAndRefill(parentCount);
-
-        for (int p = 0; p < parentCount; p++)
+        data.resetAll();
+        for (int p = 0; p < pp.getSize(); p++)
         {
             for (int c = 0; c < childrenCount; c++)
             {
-                data.appendShape(data[p].s->genFromSelfAndColor(data[rando::randMaxInt(parentCount)].s->getColor()));
+                data.appendShape(pp[p].s->genFromSelfAndColor(pp[rando::randMaxInt(pp.getSize())].s->getColor()));
             }
         }
     }
 
-    float getBest() const { return data[0].val; }
+    float getBest() const { return pp[0].val; }
 
     image &getOutImage() { return last; }
     image &getGTImage() { return gt; }
