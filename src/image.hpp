@@ -11,15 +11,13 @@
 
 class image
 {
-public:
-    typedef std::vector<float> cachedRows;
-
 private:
     int32_t width = 0, height = 0, total = 0;
 
     bounds imageBounds;
 
     colorInt *pixels = nullptr;
+
     void fillBottomFlatTriangle(const point2f &v1, const point2f &v2, const point2f &v3, const color &c)
     {
         float invslope1 = (v2.x - v1.x) / (v2.y - v1.y),
@@ -216,62 +214,6 @@ public:
         return color((int8_t)(r / d), (int8_t)(g / d), (int8_t)(b / d));
     }
 
-    cachedRows getCachedH(const image &im) const
-    {
-        cachedRows output(height);
-        for (int32_t i = 0; i < total; i++)
-            output[i / width] += pixels[i].c.findColorDifference(im[i]);
-        return output;
-
-        /*
-        for (int32_t y = 0; y < height; y++)
-        {
-            int32_t yoff = y * width;
-            for (int32_t x = 0; x < width; x++)
-            {
-                output[y] += pixels[yoff + x].findColorDifference(im[yoff + x]);
-            }
-        }
-        return output; */
-    }
-
-    /**
-     * @brief Compare a section of a image to another image
-     * @param im
-     * @param b
-     * @return
-     */
-    float compareBounds(const image &im, const bounds &b, const cachedRows &cachedH) const
-    {
-        bounds area = b.clamp(imageBounds);
-        /*
-        if (area == imageBounds)
-        {
-            return compareImages(im);
-        } */
-        float dif = 0;
-
-        for (int32_t y = 0; y <= area.min.y; y++)
-            dif += cachedH[y];
-
-        //*
-
-        for (int32_t y = area.min.y; y < area.max.y; y++)
-        {
-            int32_t yoff = y * width;
-            for (int32_t x = 0; x < width; x++)
-            {
-                // dif += getPixel(x, y).findColorDifference(im.getPixel(x,y));
-                dif += pixels[yoff + x].c.findColorDifference(im[yoff + x]);
-            }
-        } //*/
-
-        for (int32_t y = area.max.y; y < height; y++)
-            dif += cachedH[y];
-
-        return dif / total;
-    }
-
     void drawBounds(const bounds &b, const color &c)
     {
         drawLine(b.min.x, b.max.x, b.min.y, c);
@@ -325,13 +267,9 @@ public:
     void drawLine(int32_t x0, int32_t x1, int32_t y, const color &c)
     {
         if (x0 > x1)
-        {
             std::swap(x0, x1);
-        }
         if (y >= height || y < 0 || x1 < 0 || x0 > width)
-        {
             return;
-        }
 
         std::fill(pixels + getPixelPos(x0 > 0 ? x0 : 0, y), pixels + getPixelPos(x1 < width ? x1 : width, y), c);
     }

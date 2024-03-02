@@ -24,13 +24,18 @@ namespace rando
 
     inline color getRandColor() { return {(uint8_t)randMaxInt(255), (uint8_t)randMaxInt(255), (uint8_t)randMaxInt(255)}; }
 
+    inline point2 randPoint2(const bounds &b)
+    {
+        return point2(rando::randMinMax(b.min.x, b.max.x), rando::randMinMax(b.min.y, b.max.y));
+    }
+
     int32_t RAND_ORIGINAL_CHANCE = 4;
     bounds RAND_POINT_BOUNDS = {0.9, 1.1, 0.9, 1.1};
     point2f RAND_COLOR_BOUNDS = {0.8, 1.2};
     point2f RAND_FLOAT_BOUNDS = {0.95, 1.05};
 
     template <class T>
-    base_point<T> rand(const base_point<T> &v, const bounds b = RAND_POINT_BOUNDS)
+    inline base_point<T> rand(const base_point<T> &v, const bounds b = RAND_POINT_BOUNDS)
     {
         return randMaxInt(RAND_ORIGINAL_CHANCE) != 0
                    ? base_point<T>(
@@ -39,11 +44,11 @@ namespace rando
                    : v;
     }
     template <class T>
-    base_point<T> rand(const base_point<T> &v1, const base_point<T> &v2, const bounds b = RAND_POINT_BOUNDS)
+    inline base_point<T> rand(const base_point<T> &v1, const base_point<T> &v2, const bounds b = RAND_POINT_BOUNDS)
     {
         return rand(randBool() ? v1 : v2, b);
     }
-    point2f rand(const point2f &v, const bounds b = RAND_POINT_BOUNDS)
+    inline point2f rand(const point2f &v, const bounds b = RAND_POINT_BOUNDS)
     {
         return randMaxInt(RAND_ORIGINAL_CHANCE) != 0
                    ? point2f(
@@ -51,7 +56,7 @@ namespace rando
                          v.y * randMinMax(b.min.y, b.max.y))
                    : v;
     }
-    color rand(const color &c, const point2f l = RAND_COLOR_BOUNDS)
+    inline color rand(const color &c, const point2f l = RAND_COLOR_BOUNDS)
     {
         return randMaxInt(RAND_ORIGINAL_CHANCE) != 0
                    ? color(
@@ -60,15 +65,15 @@ namespace rando
                          (uint8_t)((float)c.b * randMinMax(l)))
                    : c;
     }
-    color rand(const color &c1, const color &c2, const point2f l = RAND_COLOR_BOUNDS)
+    inline color rand(const color &c1, const color &c2, const point2f l = RAND_COLOR_BOUNDS)
     {
         return rand(randBool() ? c1 : c2, l);
     }
-    float rand(const float &f, const point2f b = RAND_FLOAT_BOUNDS)
+    inline float rand(const float &f, const point2f b = RAND_FLOAT_BOUNDS)
     {
         return randMaxInt(RAND_ORIGINAL_CHANCE) != 0 ? f * randMinMax(b) : f;
     }
-    float rand(const float &f1, const float &f2, const point2f b = RAND_FLOAT_BOUNDS)
+    inline float rand(const float &f1, const float &f2, const point2f b = RAND_FLOAT_BOUNDS)
     {
         return rand(randBool() ? f1 : f2, b);
     }

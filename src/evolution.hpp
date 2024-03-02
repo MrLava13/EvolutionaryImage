@@ -82,8 +82,6 @@ public:
     parentPool pp;
 
 private:
-    image::cachedRows cacheH;
-
     float lastPerf = INFINITY;
 
     static void runThread(evolution *e, int32_t start, int32_t end)
@@ -94,12 +92,6 @@ private:
             current = e->last;
             (*i)->s->addShape(&current);
             (*i)->val = e->gt.compareImages(current);
-            /*
-            (*i)->val = e->gt.compareBounds(
-                current,
-                //e->gt.getBounds(),
-                (*i)->s->getBounds(),
-                e->cacheH);  //*/
             if ((*i)->val == e->lastPerf)
                 (*i)->val = INFINITY;
             e->pp.tryAdd(*i);
@@ -168,18 +160,10 @@ public:
             current = last;
             t->s->addShape(&current);
             t->val = gt.compareImages(current);
-            // t.val = gt.compareBounds(current, t.s->getBounds(), cacheH);
             if (t->val == lastPerf)
                 t->val = INFINITY;
             pp.tryAdd(t);
         }
-    }
-
-    void sort()
-    {
-        // Sort from lowest to highest
-        std::sort(data.begin(), data.end(), [](const pool::poolVal *a, const pool::poolVal *b)
-                  { return a->val < b->val; });
     }
 
     void resize()
@@ -194,7 +178,7 @@ public:
         {
             for (int c = 0; c < childrenCount; c++)
             {
-                data.appendShape(pp[p].s->genFromSelfAndColor(pp[rando::randMaxInt(pp.getSize())].s->getColor()));
+                data.appendShape(pp[p].s->regenerate(pp[rando::randMaxInt(pp.getSize())].s->getColor()));
             }
         }
     }

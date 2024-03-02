@@ -29,7 +29,7 @@ public:
 
     void addShape(image *v) const
     {
-        point2f halfSize = size / 2;
+        point2f halfSize = size * 0.5;
         point2 p1 = (center + point2f(-halfSize.x, -halfSize.y)).rotate(center, angle),
                p2 = (center + point2f(halfSize.x, -halfSize.y)).rotate(center, angle),
                p3 = (center + point2f(halfSize.x, halfSize.y)).rotate(center, angle),
@@ -69,9 +69,9 @@ public:
 
     shapeType getShapeType() const { return shapeType::rectangle; }
 
-    shape *genFromSelfAndColor(const color &col) const { return new rectangle(rando::rand(angle), rando::rand(center), rando::rand(size), rando::rand(rando::randBool() ? c : col)); }
-    shape *genFromSelf() const { return new rectangle(rando::rand(angle), rando::rand(center), rando::rand(size), rando::rand(c)); }
-    shape *genFromParent(const shape *s) const
+    shape *regenerate(const color &col) const { return new rectangle(rando::rand(angle), rando::rand(center), rando::rand(size), rando::rand(rando::randBool() ? c : col)); }
+    shape *regenerate() const { return new rectangle(rando::rand(angle), rando::rand(center), rando::rand(size), rando::rand(c)); }
+    shape *regenerate(const shape *s) const
     {
         // I think I am commiting a crime with this casting
         const rectangle *r = (const rectangle *)s;

@@ -22,9 +22,9 @@ public:
     virtual const color &getColor() const = 0;
     virtual bounds getBounds() const = 0;
 
-    virtual shape *genFromSelf() const = 0;
-    virtual shape *genFromSelfAndColor(const color &c) const = 0;
-    virtual shape *genFromParent(const shape *s) const = 0;
+    virtual shape *regenerate() const = 0;
+    virtual shape *regenerate(const color &c) const = 0;
+    virtual shape *regenerate(const shape *s) const = 0;
     virtual shape *clone() const = 0;
 
     virtual void scale(point2f s) = 0;

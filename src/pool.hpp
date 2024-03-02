@@ -36,7 +36,7 @@ protected:
         // Delete all the nodes after the given node
         for (poolVal **s = start; s != shapes + maxSize; s++)
         {
-            if (*s == nullptr)
+            if (!*s)
             {
                 break;
             }
@@ -79,7 +79,7 @@ public:
     {
         for (int32_t i = 0; i < maxSize; i++)
         {
-            if (shapes[i] != nullptr)
+            if (shapes[i])
                 delete shapes[i];
         }
         delete[] shapes;
@@ -144,10 +144,6 @@ public:
 
     void resetAll()
     {
-        if (size == 0)
-        {
-            return;
-        }
         size = 0;
     }
 
@@ -162,27 +158,22 @@ public:
     void appendShape(shape *shape)
     {
         assert(size < maxSize);
-        if (shapes[size] != nullptr){
-            delete shapes[size];
-            //delete shapes[size]->s;
-            //shapes[size]->s = shape;
-            //return;
-        }
+        if (shapes[size])
+            return replaceAt(size++, shape);
         (shapes[size++] = new poolVal)->s = shape;
     }
 
     int32_t countElements() const
     {
         int32_t output = 0;
-        for (; output < maxSize && shapes[output] != nullptr; output++)
+        for (; output < maxSize && shapes[output]; output++)
             ;
         return output;
     }
 
     void wipe() { trimFrom(shapes); }
 
-
-    bool exists(int32_t i) const { return i < 0 || i > size || shapes[i] != nullptr; }
+    bool exists(int32_t i) const { return i < 0 || i > size || shapes[i]; }
 
     int32_t getSize() const { return size; }
     void setSize(int32_t s) { size = s; }

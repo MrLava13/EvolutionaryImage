@@ -1,11 +1,12 @@
 #pragma once
+#include <exception>
 #include "image.hpp"
 #include "evolution.hpp"
 
 class fragmentedEvolution
 {
 public:
-    int32_t fragmentationSize = 96;
+    int32_t fragmentationSize = 64;
 
     int32_t threadCount = std::thread::hardware_concurrency();
 
@@ -40,6 +41,8 @@ public:
         threadManager(int32_t count) : threadCount(count), threads(count <= 0 ? nullptr : new threadStatus[count]), ts(count) {}
         ~threadManager()
         {
+            assert(!isRunning());
+            // waitTillFinished();
             if (threads != nullptr)
                 delete[] threads;
         }
@@ -93,7 +96,11 @@ public:
             }
         }
 
-        const threadStatus operator[](int32_t i) const { return threads[i]; }
+        const threadStatus operator[](int32_t i) const
+        {
+            assert(i < threadCount);
+            return threads[i];
+        }
     };
 
 protected:
@@ -161,6 +168,7 @@ public:
 
     void fragment()
     {
+        assert(fragmentationSize > 8);
         if (frags != nullptr)
             delete[] frags;
         if (points != nullptr)
@@ -243,8 +251,6 @@ public:
     bool addBestToImage() { return frags[current].addBestToImage(); }
 
     void runStep() { frags[current].runThreadedStep(); }
-
-    void sort() { frags[current].sort(); }
 
     float getBest() { return frags[current].getBest(); }
     void resize() { frags[current].resize(); }

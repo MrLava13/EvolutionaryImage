@@ -6,7 +6,7 @@
 #include "shapes/circle.hpp"
 #include "rando.hpp"
 
-shape *getRandomShape()
+inline shape *getRandomShape()
 {
     // return new circle;
     // return new rectangle;
