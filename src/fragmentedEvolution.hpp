@@ -6,7 +6,7 @@
 class fragmentedEvolution
 {
 public:
-    int32_t fragmentationSize = 64;
+    int32_t fragmentationSize = 16;
 
     int32_t threadCount = std::thread::hardware_concurrency();
 
@@ -123,14 +123,12 @@ protected:
             float best = INFINITY;
             for (int b = 0; b < maxIter && best > maxQ; b++)
             {
-                ev->clearAndFill();
+                ev->clear();
                 for (int i = 0; i < generations; i++)
                 {
                     ev->runStep();
                     best = ev->getBest();
-                    if (i == 0)
-                        ev->resize();
-                    ev->refill();
+                    ev->prepNext();
                 }
                 if (!ev->addBestToImage())
                 {
@@ -247,14 +245,13 @@ public:
         }
     }
 
-    void clearAndFill() { frags[current].clearAndFill(); }
+    void clear() { frags[current].clear(); }
     bool addBestToImage() { return frags[current].addBestToImage(); }
 
     void runStep() { frags[current].runThreadedStep(); }
 
     float getBest() { return frags[current].getBest(); }
-    void resize() { frags[current].resize(); }
-    void refill() { frags[current].refill(); }
+    void prepNext() { frags[current].prepNext(); }
 
     bool hasMore() { return current < fragCount; }
     void nextFrag() { current++; }
@@ -263,26 +260,18 @@ public:
 
     threadManager runFor(int32_t maxIter, int32_t generations, float maxQ, bool threaded = true)
     {
-        if (threaded)
+        if (threaded && threadCount > 1)
         {
-            if (threadCount <= 1)
-            {
-                return {0};
-            }
-
             threadManager output = threadManager(threadCount);
-
-            threadManager::threadStatus *c = output.threads;
-            for (std::thread &t : output.ts)
+            for(int32_t i = 0; i < threadCount; i++)
             {
-                (t = std::thread(runAll, this, c++, maxIter, generations, maxQ)).detach();
+                (output.ts[i] = std::thread(runAll, this, &output.threads[i], maxIter, generations, maxQ)).detach();
             }
 
             return output;
         }
-        threadManager::threadStatus *c = new threadManager::threadStatus;
-        runAll(this, c, maxIter, generations, maxQ);
-        delete c;
+        threadManager::threadStatus c;
+        runAll(this, &c, maxIter, generations, maxQ);
         return {0};
     }
 

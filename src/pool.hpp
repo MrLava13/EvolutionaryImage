@@ -25,6 +25,13 @@ public:
                 s = nullptr;
             }
         }
+
+        void replaceShape(shape *sha)
+        {
+            if (s != nullptr)
+                delete s;
+            s = sha;
+        }
     };
 
 protected:

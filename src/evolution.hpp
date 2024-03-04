@@ -69,23 +69,23 @@ public:
     };
 
 public:
-    int32_t startingCapacity = 500,
+    int32_t startingCapacity = 5000,
             parentCount = 5,
             childrenCount = 50; /*Children per parent*/
 
     int32_t threadCount = std::thread::hardware_concurrency();
 
+private:
     bounds boundingbox;
 
     image last, current, gt;
-    pool data;
-    parentPool pp;
+    parentPool *pp1, *pp2;
 
-private:
     float lastPerf = INFINITY;
 
     static void runThread(evolution *e, int32_t start, int32_t end)
     {
+        /*
         image current;
         for (auto i = e->data.begin() + start; i != e->data.begin() + end; ++i)
         {
@@ -94,37 +94,35 @@ private:
             (*i)->val = e->gt.compareImages(current);
             if ((*i)->val == e->lastPerf)
                 (*i)->val = INFINITY;
-            e->pp.tryAdd(*i);
-        }
+            e->pp1.tryAdd(*i);
+        } */
     }
 
 public:
-    evolution() : data(startingCapacity), pp(parentCount) {}
+    evolution() : pp1(new parentPool(parentCount)), pp2(new parentPool(parentCount)) {}
+~evolution(){
+    delete pp1;
+    delete pp2;
+}
 
     bool addBestToImage()
     {
-        if (lastPerf > pp[0].val)
+        if (lastPerf > (*pp1)[0].val)
         {
-            lastPerf = pp[0].val;
+            lastPerf = (*pp1)[0].val;
             current = last;
-            pp[0].s->addShape(&current);
+            (*pp1)[0].s->addShape(&current);
             last = current;
             return true;
         }
         return false;
     }
-    void clearAndFill()
+    void clear()
     {
-        pp.reset();
-        pp.wipe();  //fixes the memory leak until I find what dumb thing is broken
-        data.resetAll();
-
-        for (int i = 0; i < startingCapacity; i++)
-        {
-            shape *tmp = getRandomShape();
-            tmp->setRandom(boundingbox, &last);
-            data.appendShape(tmp);
-        }
+        pp1->reset();
+        pp2->reset();
+        pp1->wipe(); // fixes the memory leak until I find what dumb thing is broken
+        pp2->wipe();
     }
 
     void runThreadedStep()
@@ -136,7 +134,8 @@ public:
 
         std::vector<std::thread> threads(threadCount);
 
-        int32_t size = data.getSize() / threadCount, offset = data.getSize() % threadCount;
+        int32_t size = 4, // data.getSize() / threadCount,
+            offset = 4;   // data.getSize() % threadCount;
         for (int32_t i = 0; i < threadCount; i++)
         {
             threads[i] = std::thread(
@@ -154,36 +153,42 @@ public:
 
     void runStep()
     {
+        pool::poolVal tmpVal;
         // Test each
-        for (auto &t : data)
+        if (pp2->getSize())
         {
-            current = last;
-            t->s->addShape(&current);
-            t->val = gt.compareImages(current);
-            if (t->val == lastPerf)
-                t->val = INFINITY;
-            pp.tryAdd(t);
-        }
-    }
-
-    void resize()
-    {
-        data.resize(parentCount * childrenCount);
-    }
-
-    void refill()
-    {
-        data.resetAll();
-        for (int p = 0; p < pp.getSize(); p++)
-        {
-            for (int c = 0; c < childrenCount; c++)
+            int32_t s = parentCount * childrenCount;
+            for (int32_t i = 0; i < s; i++)
             {
-                data.appendShape(pp[p].s->regenerate(pp[rando::randMaxInt(pp.getSize())].s->getColor()));
+                tmpVal.replaceShape((*pp2)[rando::randMaxInt(pp2->getSize())].s->regenerate((*pp2)[rando::randMaxInt(pp2->getSize())].s->getColor()));
+
+                current = last;
+                tmpVal.s->addShape(&current);
+                tmpVal.val = gt.compareImages(current);
+                if (tmpVal.val == lastPerf)
+                    tmpVal.val = INFINITY;
+                pp1->tryAdd(&tmpVal);
             }
+            return;
+        }
+        for (int32_t i = 0; i < startingCapacity; i++)
+        {
+            // Generate shape
+            tmpVal.replaceShape(getRandomShape());
+            tmpVal.s->setRandom(boundingbox, &last);
+
+            current = last;
+            tmpVal.s->addShape(&current);
+            tmpVal.val = gt.compareImages(current);
+            if (tmpVal.val == lastPerf)
+                tmpVal.val = INFINITY;
+            pp1->tryAdd(&tmpVal);
         }
     }
 
-    float getBest() const { return pp[0].val; }
+    void prepNext() { std::swap(pp1, pp2); }
+
+    float getBest() const { return (*pp1)[0].val; }
 
     image &getOutImage() { return last; }
     image &getGTImage() { return gt; }
